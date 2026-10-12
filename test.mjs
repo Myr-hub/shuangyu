@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {applySnapshot} from './snapshot.mjs';
+const s={roomId:'a',version:2,phase:'waiting'};
+assert.equal(applySnapshot(s,{...s,version:1}),s);
+assert.equal(applySnapshot(s,{...s,phase:'closed'}),s);
+assert.equal(applySnapshot(s,{...s,version:3,phase:'playing'}).phase,'playing');
+assert.throws(()=>applySnapshot(s,{...s,roomId:'b'}),/不同房间/);
+assert.throws(()=>applySnapshot(null,{...s,version:-1}),/版本号/);
+assert.throws(()=>applySnapshot(null,{...s,phase:'bad'}),/状态/);
+assert.throws(()=>applySnapshot(null,{...s,roomId:''}),/标识/);
+const first=applySnapshot(null,s);first.phase='closed';assert.equal(s.phase,'waiting');
+console.log('8 assertions passed');
